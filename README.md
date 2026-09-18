@@ -1,56 +1,57 @@
-# Retool MCP Server
+# Retool MCP Proxy
 
-[![npm version](https://badge.fury.io/js/retool-mcp.svg)](https://www.npmjs.com/package/retool-mcp)
+A local stdio MCP proxy for Retool's self-hosted MCP server. It discovers the
+tools enabled by the Retool Helm chart and forwards calls to the chart's native
+MCP endpoint. This keeps the local catalog aligned with Retool instead of
+maintaining an incomplete API-v2 approximation.
 
-An MCP (Model Context Protocol) server for interacting with self-hosted Retool instances. This allows AI assistants like Claude to create apps, manage workflows, users, and resources in Retool.
+## Requirements
 
-## Features
+- A Retool self-hosted deployment with the official `retool` chart's MCP server
+  enabled:
 
-- **Apps Management**: Create, list, delete apps and create releases
-- **Folders**: Organize apps into folders
-- **Workflows**: List and trigger Retool workflows
-- **Resources**: View database connections, APIs, and other resources
-- **Users**: Create, list, and manage users
-- **Groups**: Manage permission groups
-- **Audit Logs**: Access organization audit logs
+  ```yaml
+  env:
+    BASE_DOMAIN: https://retool.example.com
 
-## Quick Start
+  mcp:
+    enabled: true
+  ```
 
-### Using npx (Recommended)
+- An OAuth access token authorized for the Retool MCP scopes needed by the
+  intended tools. The chart endpoint is `https://retool.example.com/mcp`.
 
-No installation required:
+## Quick start
+
+Run without installing:
 
 ```bash
-RETOOL_URL=https://your-retool.com RETOOL_API_KEY=your-key npx retool-mcp
+RETOOL_URL=https://retool.example.com \
+RETOOL_MCP_ACCESS_TOKEN=your-oauth-access-token \
+npx retool-mcp
 ```
 
-### Global Installation
+Use `RETOOL_MCP_URL` when the MCP endpoint is not the default
+`<RETOOL_URL>/mcp`:
 
 ```bash
-npm install -g retool-mcp
-retool-mcp
+RETOOL_MCP_URL=https://retool.example.com/mcp \
+RETOOL_MCP_ACCESS_TOKEN=your-oauth-access-token \
+npx retool-mcp
 ```
 
-## Configuration
+## Tool availability
 
-Set the following environment variables:
+At startup, the proxy calls `tools/list` on Retool and registers every returned
+tool locally. Availability therefore reflects both:
 
-| Variable | Description | Required |
-|----------|-------------|----------|
-| `RETOOL_URL` | Your Retool instance URL | Yes |
-| `RETOOL_API_KEY` | Retool API token | Yes |
+- `mcp.config.enabledToolsets` in the deployed Helm chart.
+- The scopes granted to `RETOOL_MCP_ACCESS_TOKEN`.
 
-### Getting an API Key
+The upstream Retool MCP server remains responsible for validating tool
+arguments, so its current schemas and behavior are preserved.
 
-1. Go to your Retool instance
-2. Navigate to **Settings > API**
-3. Create a new API token with appropriate permissions
-
-## Usage with Claude Code
-
-Add to your Claude Code MCP settings:
-
-**Option 1: Using npx (no install needed)**
+## Configure an MCP client
 
 ```json
 {
@@ -59,108 +60,23 @@ Add to your Claude Code MCP settings:
       "command": "npx",
       "args": ["-y", "retool-mcp"],
       "env": {
-        "RETOOL_URL": "https://your-retool-instance.com",
-        "RETOOL_API_KEY": "your-api-key"
+        "RETOOL_URL": "https://retool.example.com",
+        "RETOOL_MCP_ACCESS_TOKEN": "your-oauth-access-token"
       }
     }
   }
 }
 ```
 
-**Option 2: Using global install**
-
-```json
-{
-  "mcpServers": {
-    "retool": {
-      "command": "retool-mcp",
-      "env": {
-        "RETOOL_URL": "https://your-retool-instance.com",
-        "RETOOL_API_KEY": "your-api-key"
-      }
-    }
-  }
-}
-```
-
-## Available Tools
-
-### Apps
-| Tool | Description |
-|------|-------------|
-| `retool_list_apps` | List all apps |
-| `retool_get_app` | Get app details |
-| `retool_create_app` | Create a new app |
-| `retool_delete_app` | Delete an app |
-| `retool_create_app_release` | Create app release/version |
-
-### Folders
-| Tool | Description |
-|------|-------------|
-| `retool_list_folders` | List all folders |
-| `retool_create_folder` | Create a folder |
-
-### Workflows
-| Tool | Description |
-|------|-------------|
-| `retool_list_workflows` | List all workflows |
-| `retool_trigger_workflow` | Trigger a workflow with optional data |
-
-### Resources
-| Tool | Description |
-|------|-------------|
-| `retool_list_resources` | List all resources (DBs, APIs, etc.) |
-| `retool_get_resource` | Get resource details |
-
-### Users
-| Tool | Description |
-|------|-------------|
-| `retool_list_users` | List all users |
-| `retool_get_user` | Get user details |
-| `retool_create_user` | Create/invite user |
-| `retool_deactivate_user` | Deactivate a user |
-
-### Groups
-| Tool | Description |
-|------|-------------|
-| `retool_list_groups` | List all groups |
-| `retool_get_group` | Get group details |
-| `retool_add_user_to_group` | Add user to group |
-
-### Audit
-| Tool | Description |
-|------|-------------|
-| `retool_get_audit_logs` | Get audit logs |
-
-## Example Usage
-
-Once configured, you can ask Claude:
-
-- "List all Retool apps"
-- "Create a new app called 'Customer Dashboard'"
-- "Trigger the 'daily-report' workflow"
-- "Add user john@example.com to the Admin group"
+For clients that support remote MCP servers and OAuth, connect directly to
+`https://retool.example.com/mcp`; no local proxy is needed.
 
 ## Development
 
 ```bash
-# Clone the repo
-git clone https://github.com/TechnicalRhino/retool-mcp.git
-cd retool-mcp
-
-# Install dependencies
 npm install
-
-# Run in development mode
-npm run dev
-
-# Build
 npm run build
 ```
-
-## Contributing
-
-Contributions are welcome! Please open an issue or submit a PR.
 
 ## License
 
