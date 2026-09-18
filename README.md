@@ -71,24 +71,6 @@ arguments, so its current schemas and behavior are preserved.
 For clients that support remote MCP servers and OAuth, connect directly to
 `https://retool.example.com/mcp`; no local proxy is needed.
 
-## Container image
-
-The `Dockerfile` uses Amazon Linux 2023 for both the build and runtime images.
-Build it locally:
-
-```bash
-docker build --tag retool-mcp:latest .
-```
-
-Run it with the Retool MCP endpoint and OAuth access token:
-
-```bash
-docker run --rm --interactive \
-  --env RETOOL_URL=https://retool.example.com \
-  --env RETOOL_MCP_ACCESS_TOKEN=your-oauth-access-token \
-  retool-mcp:latest
-```
-
 ## Development
 
 ```bash
