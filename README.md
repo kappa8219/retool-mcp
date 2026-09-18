@@ -28,7 +28,7 @@ Run without installing:
 ```bash
 RETOOL_URL=https://retool.example.com \
 RETOOL_MCP_ACCESS_TOKEN=your-oauth-access-token \
-npx retool-mcp
+npx -y @kappa8219/retool-mcp
 ```
 
 Use `RETOOL_MCP_URL` when the MCP endpoint is not the default
@@ -37,7 +37,7 @@ Use `RETOOL_MCP_URL` when the MCP endpoint is not the default
 ```bash
 RETOOL_MCP_URL=https://retool.example.com/mcp \
 RETOOL_MCP_ACCESS_TOKEN=your-oauth-access-token \
-npx retool-mcp
+npx -y @kappa8219/retool-mcp
 ```
 
 ## Tool availability
@@ -58,7 +58,7 @@ arguments, so its current schemas and behavior are preserved.
   "mcpServers": {
     "retool": {
       "command": "npx",
-      "args": ["-y", "retool-mcp"],
+      "args": ["-y", "@kappa8219/retool-mcp"],
       "env": {
         "RETOOL_URL": "https://retool.example.com",
         "RETOOL_MCP_ACCESS_TOKEN": "your-oauth-access-token"

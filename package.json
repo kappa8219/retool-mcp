@@ -1,6 +1,6 @@
 {
-  "name": "retool-mcp",
-  "version": "1.0.0",
+  "name": "@kappa8219/retool-mcp",
+  "version": "1.0.1",
   "description": "MCP server for Retool - create and manage apps, workflows, and resources via Claude Code",
   "main": "dist/index.js",
   "type": "module",
